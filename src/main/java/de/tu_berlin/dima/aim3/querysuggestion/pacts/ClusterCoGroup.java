@@ -107,19 +107,22 @@ public class ClusterCoGroup
       // + coOccRecord.getField(7, PactString.class) + "\t"
       // + coOccRecord.getField(6, PactInteger.class));
 
+      int counter = 0;
       // add all entries to the matrix
       while (coOccRecords.hasNext()) {
         coOccRecord = coOccRecords.next();
         ref1 = coOccRecord.getField(4, PactString.class).getValue();
         ref2 = coOccRecord.getField(7, PactString.class).getValue();
         count = coOccRecord.getField(6, PactInteger.class).getValue();
+
+
         // add entry to co occ matrix
         coOccMatrix.set(refIndexMap.indexOf(ref1), refIndexMap.indexOf(ref2), count);
 
+//        System.out.println("Co Occ for q:  " + coOccRecord.getField(3, PactString.class) + "\tr1: "
+//        		+ coOccRecord.getField(4, PactString.class) + "\tr2:" + coOccRecord.getField(7, PactString.class)
+//        		+ "\t" + coOccRecord.getField(6, PactInteger.class));
         // printMatrix(coOccMatrix);
-        System.out.println("Co Occ for q:  " + coOccRecord.getField(3, PactString.class) + "\tr1: "
-                + coOccRecord.getField(4, PactString.class) + "\tr2:" + coOccRecord.getField(7, PactString.class)
-                + "\t" + coOccRecord.getField(6, PactInteger.class));
       }
       // get number real of different refinements to cut matrix to need
       // dimensions

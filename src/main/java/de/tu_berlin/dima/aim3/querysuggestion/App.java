@@ -11,18 +11,18 @@ import java.util.List;
  */
 public class App 
 {
-    public static void main( String[] args )
-    {
+    public static void main( String[] args ){
 //    	
 //		List<List<Integer>> clusters = new ArrayList<List<Integer>>();
 //		List<Integer> singleCluster = new ArrayList<Integer>();
 //		singleCluster.add(1);
 //		clusters.add(singleCluster);
 //		System.out.println(clusters);
-    	
+    	Matrix A = new Matrix(80, 80);
+A.set(80, 80, 1);    	
 		int rowCount = 5;
 		int columnCount = 10;
-//		Matrix probMatrix = new Matrix(rowCount ,columnCount );
+		
 		Matrix probMatrix = new Matrix(rowCount ,columnCount,3 );
 		printMatrix(probMatrix.getMatrix(1, 1, 1, 3));
 //		double f = 1 / rowCount;
@@ -48,6 +48,8 @@ public class App
     }
     
 	private static void printMatrix(Matrix A) {
+
+		
 		for (int i = 0; i < A.getRowDimension(); i++) {
 			for (int j = 0; j < A.getColumnDimension(); j++) {
 				System.out.print(A.get(i, j) + "\t");

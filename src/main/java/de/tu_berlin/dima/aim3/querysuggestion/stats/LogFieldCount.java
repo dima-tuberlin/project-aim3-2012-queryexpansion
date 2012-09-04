@@ -59,7 +59,7 @@ public class LogFieldCount
 
     private final StringBuilder buffer = new StringBuilder();
 
-    @Override
+//    @Override
     public void writeRecord(PactRecord record)
             throws IOException {
       int count = record.getField(6, PactInteger.class).getValue();
@@ -176,7 +176,7 @@ public class LogFieldCount
   /**
    * {@inheritDoc}
    */
-  @Override
+//  @Override
   public Plan getPlan(String... args) {
 
     // parse job parameters
@@ -187,11 +187,11 @@ public class LogFieldCount
     int countFieldInd = (args.length > 3 ? Integer.parseInt(args[0]) : 0);
 
     FileDataSource source = new FileDataSource(TextInputFormat.class, dataInput, "Input Lines");
-    MapContract mapper = new MapContract(QueryLogMapper.class, source, "Read field from Query logs");
+    MapContract mapper = MapContract.builder(QueryLogMapper.class).input(source).name("Read field from Query logs").build();
     // set field for counting
     mapper.setParameter(QueryLogMapper.COUNT_FIELD, countFieldInd);
 
-    ReduceContract reducer = new ReduceContract(CountKeys.class, PactString.class, 0, mapper, "Count Field Contents");
+    ReduceContract reducer = new ReduceContract.Builder(CountKeys.class, PactString.class, 0).input(mapper).name("Count Field Contents").build();
     FileDataSink out = new FileDataSink(CountOutFormat.class, output, reducer, "Field Content Counts");
     // TODO really?
     // source.setParameter(TextInputFormat.CHARSET_NAME, "ASCII"); // comment out this line for
@@ -206,7 +206,7 @@ public class LogFieldCount
   /**
    * {@inheritDoc}
    */
-  @Override
+//  @Override
   public String getDescription() {
 
     return "Parameters: [noSubStasks] [input] [output]";

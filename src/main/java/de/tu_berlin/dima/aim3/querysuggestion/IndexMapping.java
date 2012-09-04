@@ -11,24 +11,6 @@ public class IndexMapping {
 	
 	private  Map<String, Integer> indexMap;
 	private  Map<Integer,String> reverseMap;
-//
-//	static {
-//		DICTIONARY = Maps.newHashMap();
-//		DICTIONARY.put("one", 0);
-//		DICTIONARY.put("ring", 1);
-//		DICTIONARY.put("to", 2);
-//		DICTIONARY.put("rule", 3);
-//		DICTIONARY.put("them", 4);
-//		DICTIONARY.put("all", 5);
-//		DICTIONARY.put("find", 6);
-//		DICTIONARY.put("bring", 7);
-//		DICTIONARY.put("and", 8);
-//		DICTIONARY.put("in", 9);
-//		DICTIONARY.put("the", 10);
-//		DICTIONARY.put("darkness", 11);
-//		DICTIONARY.put("bind", 12);
-//	}
-
 	
 	//TODO add trigger to have reverse mapping because it is only needed for refs not for docs
 	// s. http://docs.guava-libraries.googlecode.com/git-history/release/javadoc/index.html

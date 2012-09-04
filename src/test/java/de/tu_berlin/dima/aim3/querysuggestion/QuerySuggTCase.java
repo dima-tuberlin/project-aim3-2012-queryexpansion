@@ -36,6 +36,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.junit.runners.Parameterized.Parameters;
 
+import eu.stratosphere.nephele.client.JobClient;
 import eu.stratosphere.nephele.configuration.Configuration;
 import eu.stratosphere.nephele.jobgraph.JobGraph;
 import eu.stratosphere.pact.common.plan.Plan;
@@ -133,7 +134,9 @@ public class QuerySuggTCase
     }
 
     try {
-      cluster.submitJobAndWait(jobGraph, getJarFilePath());
+    	final JobClient client = cluster.getJobClient(jobGraph, getJarFilePath());
+		client.submitJobAndWait();
+//      cluster. submitJobAndWait(jobGraph, getJarFilePath());
     } catch (Exception e) {
       LOG.error(e);
       Assert.fail("Job execution failed!");
@@ -209,8 +212,9 @@ public class QuerySuggTCase
   @Test
   public void testSessions()
           throws Exception {
-
-    basicTest("/querysug/input/sessiontext.tsv", "/querysug/results/session_results.tsv", "sessionConstruction");
+	  
+	  basicTest("/querysug/querylog_sample_100.tsv", "/querysug/results/session_results.tsv", "sessionConstruction");
+//    basicTest("/querysug/input/sessiontext.tsv", "/querysug/results/session_results.tsv", "sessionConstruction");
   }
 
   @Test

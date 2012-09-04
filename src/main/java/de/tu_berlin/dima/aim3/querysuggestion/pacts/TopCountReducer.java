@@ -36,58 +36,63 @@ public class TopCountReducer extends ReduceStub {
 	 */
 	@Override
 	public void reduce(Iterator<PactRecord> records, Collector<PactRecord> out)
-			throws Exception {		
-		
-		// buffer for sorting records by time
-		PriorityQueue<PactRecord> topRefRecords = new PriorityQueue<PactRecord>(10,
-				 new Comparator<PactRecord>() {
-		  //TODO why error?
-					@Override
-					public int compare(PactRecord record1, PactRecord record2) {
-
-						// get time values from records
-						int count1 = record1.getField(6, PactInteger.class)
-								.getValue();
-						int count2 = record2.getField(6, PactInteger.class)
-								.getValue();
-						// sort ascending
-						if (count1 < count2) {
-							return -1;
-						}
-						if (count1 > count2) {
-
-							return 1;
-						}
-						return 0;
-					}
-				});
-		
-
-	    // buffer values sorted by ref count and only keep top n
-	    while (records.hasNext()) {
-	      
-	      // copy everything!
-	      PactRecord copy = records.next().createCopy();
-	      // add to que
-	      topRefRecords.add(copy);
-	      // remove smallest element if size over the max. top count
-	      if (topRefRecords.size() > maxTopCount){
-	      
-	    	  topRefRecords.poll();
-
-	      }
-	    }
-	    // emit top n
-//	    System.out.println("Top Entries");
-	    for (PactRecord topRec : topRefRecords){
-	    	out.collect(topRec);
-//	    	if (maxTopCount == 15){
-//	    	  System.out.println("Top: " + maxTopCount +" for  " +  topRec.getField(3,PactString.class) + "\t| " + topRec.getField(4, PactString.class) +"\t| " + topRec.getField(5, PactString.class) + "\t"+ topRec.getField(6, PactInteger.class));
-//	    	} else{
-//	    	  System.out.println("Top: " + maxTopCount +" for  " +  topRec.getField(3,PactString.class) + "\t| " + topRec.getField(4, PactString.class) + "\t"+ topRec.getField(6, PactInteger.class));
-//	    	}
-	    }
-
+			throws Exception {
+//		
+//		// buffer for sorting records by time
+//		PriorityQueue<PactRecord> topRefRecords = new PriorityQueue<PactRecord>(10,
+//				 new Comparator<PactRecord>() {
+//		  //TODO why error?
+//					@Override
+//					public int compare(PactRecord record1, PactRecord record2) {
+//
+//						// get time values from records
+//						int count1 = record1.getField(6, PactInteger.class)
+//								.getValue();
+//						int count2 = record2.getField(6, PactInteger.class)
+//								.getValue();
+//						// sort ascending
+//						if (count1 < count2) {
+//							return -1;
+//						}
+//						if (count1 > count2) {
+//
+//							return 1;
+//						}
+//						return 0;
+//					}
+//				});
+//		
+//
+//	    // buffer values sorted by ref count and only keep top n
+//	    while (records.hasNext()) {
+//	      
+//	      // copy everything!
+//	      PactRecord copy = records.next().createCopy();
+//	      // add to que
+//	      topRefRecords.add(copy);
+//	      // remove smallest element if size over the max. top count
+//	      if (topRefRecords.size() > maxTopCount){
+//	      
+//	    	  topRefRecords.poll();
+//
+//	      }
+//	    }
+//	    // emit top n
+////	    System.out.println("Top Entries");
+//	    for (PactRecord topRec : topRefRecords){
+//	    	out.collect(topRec);
+////	    	if (maxTopCount == 15){
+////	    	  System.out.println("Top: " + maxTopCount +" for  " +  topRec.getField(3,PactString.class) + "\t| " + topRec.getField(4, PactString.class) +"\t| " + topRec.getField(5, PactString.class) + "\t"+ topRec.getField(6, PactInteger.class));
+////	    	} else{
+////	    	  System.out.println("Top: " + maxTopCount +" for  " +  topRec.getField(3,PactString.class) + "\t| " + topRec.getField(4, PactString.class) + "\t"+ topRec.getField(6, PactInteger.class));
+////	    	}
+//	    }
+//
+		int counter = maxTopCount;
+	    while (records.hasNext() && counter != 10) {
+	    	out.collect(records.next());
+	    	counter--;	    	
+	    }	
 	}
 
 }
