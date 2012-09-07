@@ -243,7 +243,8 @@ public class QuerySuggTCase
     // basicTest("/querysug/input/porntest.tsv",
     // "/querysug/results/session_results.tsv", "");
 //    basicTest("/querysug/querylog_sample_200000.tsv", "/querysug/results/session_results.tsv", "");
-    basicTest("/querysug/querylog_sample_10000.tsv", "/querysug/results/session_results.tsv", "");
+    basicTest("/querysug/querylog_sample_100.tsv", "/querysug/results/session_results.tsv", "");
+//	  basicTest("/querysug/input/top_refs_simple.tsv", "/querysug/results/session_results.tsv", "");
 
   }
 

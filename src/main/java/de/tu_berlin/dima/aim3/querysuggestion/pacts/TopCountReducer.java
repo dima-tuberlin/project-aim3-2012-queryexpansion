@@ -19,6 +19,7 @@ public class TopCountReducer extends ReduceStub {
 	
 	/** number of top entries emitted*/
 	private int maxTopCount;
+	
 
 	/**
 	 * 
@@ -88,11 +89,31 @@ public class TopCountReducer extends ReduceStub {
 ////	    	}
 //	    }
 //
+		// count down to emit at max set number
 		int counter = maxTopCount;
-	    while (records.hasNext() && counter != 10) {
+	    while (records.hasNext() && counter != 0) {
+//	    	PactRecord topRec = records.next();
+//	    	test.setValue("TOP");
+//	    	topRec.setField(13, test);
+//
+//	    	out.collect(topRec);
+//	    	if (maxTopCount == 15){
+//				System.out.println("Top: " + maxTopCount + " for  "
+//						+ topRec.getField(3, PactString.class) + "\t| "
+//						+ topRec.getField(4, PactString.class) + "\t| "
+//						+ topRec.getField(5, PactString.class) + "\t"
+//						+ topRec.getField(6, PactInteger.class));
+//			} else {
+//				System.out.println("Top: " + maxTopCount + " for  "
+//						+ topRec.getField(3, PactString.class) + "\t| "
+//						+ topRec.getField(4, PactString.class) + "\t"
+//						+ topRec.getField(6, PactInteger.class));
+//			}
+			
 	    	out.collect(records.next());
 	    	counter--;	    	
 	    }	
+//	    System.out.println(counter);
 	}
 
 }

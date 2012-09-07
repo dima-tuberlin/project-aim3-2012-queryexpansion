@@ -105,25 +105,26 @@ public class QuerySuggestClustering implements PlanAssembler,
 
 		logMapper.setDegreeOfParallelism(noSubTasks);
 
-//		// key is userId
-//		SingleInputContract sessions;
-//		// ReduceContract sessions;
-//
-//		// to use session data directly only works with session files!
-//		if (!processingLevel.equals("sesCluster")) {
-//			sessions = new ReduceContract.Builder(SessionReducer.class,
-//					PactInteger.class, 0).input(logMapper)
-//					.name("Find sessions").build();
-//		} else {
-//			sessions = MapContract.builder(SessionMapper.class).input(source)
-//					.name("Filter Query Log Lines").build();
-//		}
-//			sessions.setDegreeOfParallelism(noSubTasks);
-		ReduceContract sessions = new ReduceContract.Builder(SessionReducer.class,
-				PactInteger.class, 0).input(logMapper)
+		// // key is userId
+		// SingleInputContract sessions;
+		// // ReduceContract sessions;
+		//
+		// // to use session data directly only works with session files!
+		// if (!processingLevel.equals("sesCluster")) {
+		// sessions = new ReduceContract.Builder(SessionReducer.class,
+		// PactInteger.class, 0).input(logMapper)
+		// .name("Find sessions").build();
+		// } else {
+		// sessions = MapContract.builder(SessionMapper.class).input(source)
+		// .name("Filter Query Log Lines").build();
+		// }
+		// sessions.setDegreeOfParallelism(noSubTasks);
+		ReduceContract sessions = new ReduceContract.Builder(
+				SessionReducer.class, PactInteger.class, 0).input(logMapper)
 				.name("Find sessions").build();
 		// set sorting by time stamp
-		sessions.setGroupOrder(new Ordering(1, PactInteger.class, Order.ASCENDING));
+		sessions.setGroupOrder(new Ordering(1, PactInteger.class,
+				Order.ASCENDING));
 
 		// make sure every ref in only once in every session
 		ReduceContract singleRefSesReducer = ReduceContract
@@ -145,7 +146,8 @@ public class QuerySuggestClustering implements PlanAssembler,
 				TopCountReducer.class, PactString.class, 3)
 				.input(countRefReducer).name("Find top refs").build();
 		// order by count field top counts first
-		topRefReducer.setGroupOrder(new Ordering(6, PactInteger.class, Order.DESCENDING));
+		topRefReducer.setGroupOrder(new Ordering(6, PactInteger.class,
+				Order.DESCENDING));
 		topRefReducer.setDegreeOfParallelism(noSubTasks);
 		// use only top n ref per query
 		topRefReducer
@@ -153,10 +155,11 @@ public class QuerySuggestClustering implements PlanAssembler,
 		// FileDataSink out = new FileDataSink(RefCountOutputFormat.class,
 		// output, topRefReducer,"out");
 
-		// // first filter session entries by top refs
+		// // first filter session entries by top refs keys query and ref
 		MatchContract filterByTopRefs = MatchContract
-				.builder(FilterByTopRefMatcher.class, PactString.class, 3, 4)
-				.input1(singleRefSesReducer).input2(topRefReducer)
+				.builder(FilterByTopRefMatcher.class, PactString.class, 3, 3)
+				.keyField(PactString.class, 4, 4).input1(singleRefSesReducer)
+				.input2(topRefReducer)
 				.name("Filter Session Entries by Top Ref").build();
 		// set delete field to doc field
 		filterByTopRefs.setParameter(FilterDocsByTopRefs.DEL_FIELD, 5);
@@ -186,23 +189,30 @@ public class QuerySuggestClustering implements PlanAssembler,
 		/** counting documents */
 		// filter session entries by top n ref
 		MatchContract filterDocsByTopRefs = MatchContract
-				.builder(FilterByTopRefMatcher.class, PactString.class, 3, 4)
-				.input1(sessions).input2(topRefReducer)
+				.builder(FilterByTopRefMatcher.class, PactString.class, 3, 3)
+				.keyField(PactString.class, 4, 4).input1(sessions)
+				.input2(topRefReducer)
 				.name("Filter Session for doc Entries by Top Ref").build();
 		// set parameter to delete session id filed
 		filterDocsByTopRefs.setParameter(FilterDocsByTopRefs.DEL_FIELD, 2);
 		filterDocsByTopRefs.setDegreeOfParallelism(noSubTasks);
 
 		// count doc per ref
-		ReduceContract countDocPerRefReducer = ReduceContract.builder(CountReducer.class).keyField(PactString.class, 3)
-				.keyField(PactString.class, 4).keyField(PactString.class, 5).input(filterDocsByTopRefs).name("Count Docs per Refs").build();
+		ReduceContract countDocPerRefReducer = ReduceContract
+				.builder(CountReducer.class).keyField(PactString.class, 3)
+				.keyField(PactString.class, 4).keyField(PactString.class, 5)
+				.input(filterDocsByTopRefs).name("Count Docs per Refs").build();
 		countDocPerRefReducer.setDegreeOfParallelism(noSubTasks);
 
 		// find top n docs per ref
-		ReduceContract topDocPerRefReducer = ReduceContract.builder(TopCountReducer.class).keyField(PactString.class, 3)
-				.keyField(PactString.class, 4).keyField(PactString.class, 5).input(countDocPerRefReducer).name("Find top n docs per refs with count").build();
+		ReduceContract topDocPerRefReducer = ReduceContract
+				.builder(TopCountReducer.class).keyField(PactString.class, 3)
+				.keyField(PactString.class, 4).keyField(PactString.class, 5)
+				.input(countDocPerRefReducer)
+				.name("Find top n docs per refs with count").build();
 		// order by count field top counts first
-		topDocPerRefReducer.setGroupOrder(new Ordering(6, PactInteger.class, Order.DESCENDING));
+		topDocPerRefReducer.setGroupOrder(new Ordering(6, PactInteger.class,
+				Order.DESCENDING));
 		// use only top n docs per ref
 		topDocPerRefReducer.setParameter(TopCountReducer.MAX_TOP_COUNT,
 				TOP_DOCS_USED);
@@ -210,7 +220,10 @@ public class QuerySuggestClustering implements PlanAssembler,
 
 		/** end counting documents output d/r = c for top d of top r */
 		// combine doc counts and co ref
-		CoGroupContract clusterCoGroup = CoGroupContract.builder(ClusterCoGroup.class, PactString.class, 3, 3).input1(coOccCountReducer).input2(topDocPerRefReducer).name("Cluster").build();
+		CoGroupContract clusterCoGroup = CoGroupContract
+				.builder(ClusterCoGroup.class, PactString.class, 3, 3)
+				.input1(coOccCountReducer).input2(topDocPerRefReducer)
+				.name("Cluster").build();
 		clusterCoGroup.setDegreeOfParallelism(noSubTasks);
 		// clustering parameters
 		clusterCoGroup.setParameter(ClusterCoGroup.MIN_CLUSTER_COUNT,
@@ -219,7 +232,11 @@ public class QuerySuggestClustering implements PlanAssembler,
 		clusterCoGroup
 				.setParameter(ClusterCoGroup.SELF_MULTIPLY, SELF_MULTIPLY);
 
-		MatchContract joinClustersWithCounts =  MatchContract.builder(	ClusterCountJoinMatcher.class, PactString.class, 3,4).input1(clusterCoGroup).input2(topRefReducer).name("Join clusters with Top Ref counts").build();
+		MatchContract joinClustersWithCounts = MatchContract
+				.builder(ClusterCountJoinMatcher.class, PactString.class, 3, 3)
+				.keyField(PactString.class, 4, 4).input1(clusterCoGroup)
+				.input2(topRefReducer)
+				.name("Join clusters with Top Ref counts").build();
 		joinClustersWithCounts.setDegreeOfParallelism(noSubTasks);
 
 		// set output level and format
@@ -271,8 +288,6 @@ public class QuerySuggestClustering implements PlanAssembler,
 		return plan;
 	}
 
-
-	
 	/**
 	 * Writes <tt>PactRecord</tt> containing sessionID, query, refinement,
 	 * document
@@ -281,7 +296,7 @@ public class QuerySuggestClustering implements PlanAssembler,
 
 		private final StringBuilder buffer = new StringBuilder();
 
-//		@Override
+		// @Override
 		public void writeRecord(PactRecord record) throws IOException {
 
 			this.buffer.setLength(0);
@@ -309,7 +324,7 @@ public class QuerySuggestClustering implements PlanAssembler,
 
 		private final StringBuilder buffer = new StringBuilder();
 
-//		@Override
+		// @Override
 		public void writeRecord(PactRecord record) throws IOException {
 
 			this.buffer.setLength(0);
@@ -336,7 +351,7 @@ public class QuerySuggestClustering implements PlanAssembler,
 
 		private final StringBuilder buffer = new StringBuilder();
 
-//		@Override
+		// @Override
 		public void writeRecord(PactRecord record) throws IOException {
 
 			this.buffer.setLength(0);
@@ -362,7 +377,7 @@ public class QuerySuggestClustering implements PlanAssembler,
 
 		private final StringBuilder buffer = new StringBuilder();
 
-//		@Override
+		// @Override
 		public void writeRecord(PactRecord record) throws IOException {
 
 			this.buffer.setLength(0);
@@ -391,7 +406,7 @@ public class QuerySuggestClustering implements PlanAssembler,
 
 		private final StringBuilder buffer = new StringBuilder();
 
-//		@Override
+		// @Override
 		public void writeRecord(PactRecord record) throws IOException {
 
 			this.buffer.setLength(0);
@@ -417,7 +432,7 @@ public class QuerySuggestClustering implements PlanAssembler,
 
 		private final StringBuilder buffer = new StringBuilder();
 
-//		@Override
+		// @Override
 		public void writeRecord(PactRecord record) throws IOException {
 
 			this.buffer.setLength(0);
@@ -438,7 +453,7 @@ public class QuerySuggestClustering implements PlanAssembler,
 
 		private final StringBuilder buffer = new StringBuilder();
 
-//		@Override
+		// @Override
 		public void writeRecord(PactRecord record) throws IOException {
 
 			this.buffer.setLength(0);
@@ -458,93 +473,94 @@ public class QuerySuggestClustering implements PlanAssembler,
 		}
 	}
 
-//	public static class EdgeInFormat extends DelimitedInputFormat {
-//
-//		private final PactString rdfSubj = new PactString();
-//
-//		private final PactString rdfPred = new PactString();
-//
-//		private final PactString rdfObj = new PactString();
-//
-////		@Override
-//		public boolean readRecord(PactRecord target, byte[] bytes, int numBytes) {
-//
-//			int startPos = 0;
-//			startPos = parseVarLengthEncapsulatedStringField(bytes, startPos,
-//					numBytes, ' ', rdfSubj, '"');
-//			if (startPos < 0)
-//				return false;
-//			startPos = parseVarLengthEncapsulatedStringField(bytes, startPos,
-//					numBytes, ' ', rdfPred, '"');
-//			if (startPos < 0
-//					|| !rdfPred.getValue().equals(
-//							"<http://xmlns.com/foaf/0.1/knows>"))
-//				return false;
-//			startPos = parseVarLengthEncapsulatedStringField(bytes, startPos,
-//					numBytes, ' ', rdfObj, '"');
-//			if (startPos < 0)
-//				return false;
-//
-//			if (rdfSubj.compareTo(rdfObj) <= 0) {
-//				target.setField(0, rdfSubj);
-//				target.setField(1, rdfObj);
-//			} else {
-//				target.setField(0, rdfObj);
-//				target.setField(1, rdfSubj);
-//			}
-//
-//			System.out.println(target.getField(0, PactString.class).getValue()
-//					+ " - " + target.getField(1, PactString.class).getValue());
-//
-//			return true;
-//		}
-//
-//		private int parseVarLengthEncapsulatedStringField(byte[] bytes,
-//				int startPos, int length, char delim, PactString field,
-//				char encaps) {
-//
-//			boolean isEncaps = false;
-//
-//			if (bytes[startPos] == encaps) {
-//				isEncaps = true;
-//			}
-//
-//			if (isEncaps) {
-//				// encaps string
-//				for (int i = startPos; i < length; i++) {
-//					if (bytes[i] == encaps) {
-//						if (bytes[i + 1] == delim) {
-//							field.setValueAscii(bytes, startPos, i - startPos
-//									+ 1);
-//							return i + 2;
-//						}
-//					}
-//				}
-//				return -1;
-//			} else {
-//				// non-encaps string
-//				int i;
-//				for (i = startPos; i < length; i++) {
-//					if (bytes[i] == delim) {
-//						field.setValueAscii(bytes, startPos, i - startPos);
-//						return i + 1;
-//					}
-//				}
-//				if (i == length) {
-//					field.setValueAscii(bytes, startPos, i - startPos);
-//					return i + 1;
-//				} else {
-//					return -1;
-//				}
-//			}
-//		}
-//
-//		@Override
-//		public boolean readRecord(PactRecord target, byte[] bytes, int offset,
-//				int numBytes) {
-//			// TODO Auto-generated method stub
-//			return false;
-//		}
-//	}
+	// public static class EdgeInFormat extends DelimitedInputFormat {
+	//
+	// private final PactString rdfSubj = new PactString();
+	//
+	// private final PactString rdfPred = new PactString();
+	//
+	// private final PactString rdfObj = new PactString();
+	//
+	// // @Override
+	// public boolean readRecord(PactRecord target, byte[] bytes, int numBytes)
+	// {
+	//
+	// int startPos = 0;
+	// startPos = parseVarLengthEncapsulatedStringField(bytes, startPos,
+	// numBytes, ' ', rdfSubj, '"');
+	// if (startPos < 0)
+	// return false;
+	// startPos = parseVarLengthEncapsulatedStringField(bytes, startPos,
+	// numBytes, ' ', rdfPred, '"');
+	// if (startPos < 0
+	// || !rdfPred.getValue().equals(
+	// "<http://xmlns.com/foaf/0.1/knows>"))
+	// return false;
+	// startPos = parseVarLengthEncapsulatedStringField(bytes, startPos,
+	// numBytes, ' ', rdfObj, '"');
+	// if (startPos < 0)
+	// return false;
+	//
+	// if (rdfSubj.compareTo(rdfObj) <= 0) {
+	// target.setField(0, rdfSubj);
+	// target.setField(1, rdfObj);
+	// } else {
+	// target.setField(0, rdfObj);
+	// target.setField(1, rdfSubj);
+	// }
+	//
+	// System.out.println(target.getField(0, PactString.class).getValue()
+	// + " - " + target.getField(1, PactString.class).getValue());
+	//
+	// return true;
+	// }
+	//
+	// private int parseVarLengthEncapsulatedStringField(byte[] bytes,
+	// int startPos, int length, char delim, PactString field,
+	// char encaps) {
+	//
+	// boolean isEncaps = false;
+	//
+	// if (bytes[startPos] == encaps) {
+	// isEncaps = true;
+	// }
+	//
+	// if (isEncaps) {
+	// // encaps string
+	// for (int i = startPos; i < length; i++) {
+	// if (bytes[i] == encaps) {
+	// if (bytes[i + 1] == delim) {
+	// field.setValueAscii(bytes, startPos, i - startPos
+	// + 1);
+	// return i + 2;
+	// }
+	// }
+	// }
+	// return -1;
+	// } else {
+	// // non-encaps string
+	// int i;
+	// for (i = startPos; i < length; i++) {
+	// if (bytes[i] == delim) {
+	// field.setValueAscii(bytes, startPos, i - startPos);
+	// return i + 1;
+	// }
+	// }
+	// if (i == length) {
+	// field.setValueAscii(bytes, startPos, i - startPos);
+	// return i + 1;
+	// } else {
+	// return -1;
+	// }
+	// }
+	// }
+	//
+	// @Override
+	// public boolean readRecord(PactRecord target, byte[] bytes, int offset,
+	// int numBytes) {
+	// // TODO Auto-generated method stub
+	// return false;
+	// }
+	// }
 
 }

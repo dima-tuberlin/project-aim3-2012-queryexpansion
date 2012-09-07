@@ -15,6 +15,7 @@ public class FilterByTopRefMatcher
   /** field of the record set to null before emitting */
   private int delField;
 
+  
   /**
    * Reads the filter literals from the configuration.
    * 
@@ -49,7 +50,10 @@ public class FilterByTopRefMatcher
       out.collect(value1);
 //      System.out.println("Use this top ref entry for  " + value1.getField(3, PactString.class) + "\t| "
 //              + value1.getField(4, PactString.class) + "\t" + value1.getField(6, PactInteger.class) + "\t del: "
-//              + delField);
+//              + delField + "\t" +value2.getField(13, PactString.class)) ;
+//      System.out.println("TOP this top ref entry for  " + value2.getField(3, PactString.class) + "\t| "
+//              + value2.getField(4, PactString.class) + "\t" + value2.getField(6, PactInteger.class) + "\t del: "
+//              + delField) ;
 
     }
 
