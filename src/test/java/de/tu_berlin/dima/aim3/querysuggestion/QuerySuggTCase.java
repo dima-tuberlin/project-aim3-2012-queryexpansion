@@ -173,79 +173,13 @@ public class QuerySuggTCase
     // postSubmit();
   }
 
-  @Test
-  public void testLogMap()
-          throws Exception {
-    basicTest("/querysug/input/lineparse.txt", "/querysug/results/mapresults.tsv", "logMap");
-//    basicTest("/querysug/input/minimal_test1.tsv", "/querysug/results/mapresults.tsv", "logMap");
-    // basicTest("/querysug/input/empty.tsv",
-    // "/querysug/results/mapresults.tsv","logMap");
-  }
 
   @Test
-  public void testTest()
-          throws Exception {
-
-    basicTest("/querysug/input/top_refs_simple.tsv", "/querysug/results/ref_count.tsv", "test");
-    // basicTest("/querysug/input/minimal_test1.tsv",
-    // "/querysug/results/mapresults.tsv", "logMap");
-  }
-
-  @Test
-  public void testRefCount()
-          throws Exception {
-
-    basicTest("/querysug/input/top_refs_simple.tsv", "/querysug/results/ref_count.tsv", "countRef");
-    // basicTest("/querysug/input/minimal_test1.tsv",
-    // "/querysug/results/mapresults.tsv", "logMap");
-  }
-
-  @Test
-  public void testTopRefCount()
-          throws Exception {
-
-    basicTest("/querysug/input/porntest.tsv", "/querysug/results/ref_count.tsv", "topCountRef");
-    // basicTest("/querysug/input/minimal_test1.tsv",
-    // "/querysug/results/mapresults.tsv", "logMap");
-  }
-
-  @Test
-  public void testSessions()
-          throws Exception {
-	  
-	  basicTest("/querysug/querylog_sample_100.tsv", "/querysug/results/session_results.tsv", "sessionConstruction");
-//    basicTest("/querysug/input/sessiontext.tsv", "/querysug/results/session_results.tsv", "sessionConstruction");
-  }
-
-  @Test
-  public void testSingleSessions()
-          throws Exception {
-
-    basicTest("/querysug/input/minimal_test1.tsv", "/querysug/results/session_results.tsv", "singleSessions");
-  }
-
-
-  @Test
-  public void testClusterFilteredSessions()
-          throws Exception {
-
-    basicTest("/querysug/input/sessions_filtered.tsv", "/querysug/results/session_results.tsv", "sesCluster");
-  }
-  
-  
-  @Test
+  /** Test whole query clustering*/
   public void testWhole()
           throws Exception {
 
-    // basicTest("/querysug/input/clusterNumTest2.tsv",
-    // "/querysug/results/session_results.tsv", "");
-
-    // basicTest("/querysug/input/porntest.tsv",
-    // "/querysug/results/session_results.tsv", "");
-    basicTest("/querysug/querylog_sample_1000.tsv", "/querysug/results/session_results.tsv", "");
-//    basicTest("/querysug/querylog_sample_100.tsv", "/querysug/results/session_results.tsv", "");
-//	  basicTest("/querysug/input/top_refs_simple.tsv", "/querysug/results/session_results.tsv", "");
-
+    basicTest("/querysug/querylog_sample_1000.tsv", "/querysug/results/cluster_results.tsv", "");
   }
 
   @Override
